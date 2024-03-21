@@ -1,7 +1,10 @@
 package com.example.monitor;
 
+import android.app.Application;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -17,16 +20,21 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainViewModel  extends ViewModel {
-    private final MutableLiveData<List<Earthquake>> eqList = new MutableLiveData<>();
-    public LiveData<List<Earthquake>> getEqList(){
-        return eqList;
+public class MainViewModel  extends AndroidViewModel {
+
+    private final MainRepository repository;
+
+    public MainViewModel(@NonNull Application application) {
+        super(application);
+        EqDatabase database = EqDatabase.getDatabase(application);
+        repository = new MainRepository(database);
     }
-    private MainRepository repository = new MainRepository();
-    public void getEarthquakes(){
-        repository.getEarthquakes(earthquakeList -> {
-            eqList.setValue(earthquakeList);
-        });
+
+    public LiveData<List<Earthquake>> getEqList() {
+        return repository.getEqList();
+    }
+    public void downloadEarthquakes() {
+        repository.downloadAndSaveEarthquakes();
     }
 
 }
