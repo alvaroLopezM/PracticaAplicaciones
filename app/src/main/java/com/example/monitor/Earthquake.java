@@ -1,5 +1,8 @@
 package com.example.monitor;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -8,12 +11,11 @@ import androidx.room.PrimaryKey;
 import java.util.Objects;
 
 @Entity(tableName = "earthquakes")
-public class Earthquake {
+public class Earthquake implements Parcelable {
 
     @PrimaryKey
     @NonNull
     private String id;
-    @ColumnInfo(name="city")
     private String place;
     private double magnitude;
     private long time;
@@ -29,52 +31,49 @@ public class Earthquake {
         this.longitude = longitude;
     }
 
-    public String getId() {
-        return id;
+    protected Earthquake(@NonNull Parcel in) {
+        id = in.readString();
+        place = in.readString();
+        magnitude = in.readDouble();
+        time = in.readLong();
+        latitude = in.readDouble();
+        longitude = in.readDouble();
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public static final Creator<Earthquake> CREATOR = new Creator<Earthquake>() {
+        @Override
+        public Earthquake createFromParcel(Parcel in) {
+            return new Earthquake(in);
+        }
+
+        @Override
+        public Earthquake[] newArray(int size) {
+            return new Earthquake[size];
+        }
+    };
+
+    public String getId() {
+        return id;
     }
 
     public String getPlace() {
         return place;
     }
 
-    public void setPlace(String place) {
-        this.place = place;
-    }
-
     public double getMagnitude() {
         return magnitude;
-    }
-
-    public void setMagnitude(double magnitude) {
-        this.magnitude = magnitude;
     }
 
     public long getTime() {
         return time;
     }
 
-    public void setTime(long time) {
-        this.time = time;
-    }
-
     public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
     public double getLongitude() {
         return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
     }
 
     @Override
@@ -82,11 +81,26 @@ public class Earthquake {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Earthquake that = (Earthquake) o;
-        return Double.compare(that.magnitude, magnitude) == 0 && time == that.time && Double.compare(that.latitude, latitude) == 0 && Double.compare(that.longitude, longitude) == 0 && Objects.equals(id, that.id) && Objects.equals(place, that.place);
+        return Double.compare(that.magnitude, magnitude) == 0 && time == that.time && Double.compare(that.latitude, latitude) == 0 && Double.compare(that.longitude, longitude) == 0 && id.equals(that.id) && place.equals(that.place);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, place, magnitude, time, latitude, longitude);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(place);
+        dest.writeDouble(magnitude);
+        dest.writeLong(time);
+        dest.writeDouble(longitude);
+        dest.writeDouble(latitude);
     }
 }
